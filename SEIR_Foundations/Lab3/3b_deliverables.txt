@@ -18,16 +18,55 @@ Deliverable B — One paragraph “auditor narrative”
 Verification Commands (CLI proof students can paste)
 1) Data residency proof (RDS only in Tokyo)
 
-Tokyo: RDS exists
+    Tokyo: RDS exists
 
-    aws rds describe-db-instances --region ap-northeast-1 \
-  --query "DBInstances[].{DB:DBInstanceIdentifier,AZ:AvailabilityZone,Region:'ap-northeast-1',Endpoint:Endpoint.Address}"
+            aws rds describe-db-instances --region ap-northeast-1 \
+          --query "DBInstances[].{DB:DBInstanceIdentifier,AZ:AvailabilityZone,Region:'ap-northeast-1',Endpoint:Endpoint.Address}"
 
-São Paulo: No RDS
+    São Paulo: No RDS
 
-    aws rds describe-db-instances --region sa-east-1 \
-  --query "DBInstances[].DBInstanceIdentifier"
+            aws rds describe-db-instances --region sa-east-1 \
+          --query "DBInstances[].DBInstanceIdentifier"
 
+
+2) Edge proof (CloudFront logs show cache + access)
+    Students capture request headers:
+
+        curl -I https://chewbacca-growls.com/api/public-feed
+
+And/or submit CloudFront standard log evidence (Hit/Miss/RefreshHit)
+
+3) WAF proof
+
+Provide:
+        WAF log snippet or Insights summary
+        WAF logging destination options are documented 
+
+
+4) Change proof (CloudTrail)
+CloudTrail has event history with a 90-day immutable record of management events 
+
+Students capture:
+        --> “who changed SG / TGW route / WAF / CloudFront config”
+
+5) Network corridor proof (TGW)
+Students prove:
+        TGW attachments exist in both regions
+        routes point cross-region CIDRs to TGW
+
+Script 1 — malgus_residency_proof.py
+Creates a “DB only in Tokyo” proof file.
+
+Script 2 — malgus_tgw_corridor_proof.py
+Shows TGW attachments + routes that form the “legal corridor”.
+
+Script 3 — malgus_cloudtrail_last_changes.py
+Pulls recent CloudTrail events for “who changed what”.
+        --> Event history is available by default; it provides a 90-day record of management events.
+
+Script 4 — malgus_waf_summary.py
+Summarizes WAF logs (Allow vs Block) from CloudWatch Logs destination.
+WAF logging destinations: CloudWatch Logs, S3, Firehose.
 
 
 
