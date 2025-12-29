@@ -57,3 +57,66 @@ WAF association to CloudFront is done via the distribution config (Terraform web
 
 5) Route53: point domain to CloudFront (apex + app)
 lab2_cloudfront_r53.tf
+
+#####################################
+What changes from Lab 1C-Bonus-B
+✅ Keep
+    private EC2, RDS, SSM, Secrets, incident automation, dashboards, alarms
+
+🔁 Modify
+    WAF moves from ALB → CloudFront
+    DNS moves from ALB → CloudFront
+    ALB is “public” technically, but functionally private (only CloudFront can reach it)
+
+✅ New control points
+    CloudFront prefix list SG rule 
+    ALB secret header rule
+
+Verification CLI (students must prove all 3 requirements)
+1) “VPC is only reachable via CloudFront”
+A) Direct ALB access should fail (403)
+  curl -I https://<ALB_DNS_NAME>
+
+Expected: 403 (blocked by missing header)
+
+B) CloudFront access should succeed
+  curl -I https://chewbacca-growl.com
+  curl -I https://app.chewbacca-growl.com
+
+Expected: 200/301 → 200
+
+2) WAF moved to CloudFront
+  aws wafv2 get-web-acl \
+  --name <project>-cf-waf01 \
+  --scope CLOUDFRONT \
+  --id <WEB_ACL_ID>
+
+And confirm distribution references it:
+  aws cloudfront get-distribution \
+  --id <DISTRIBUTION_ID> \
+  --query "Distribution.DistributionConfig.WebACLId"
+
+Expected: WebACL ARN present.
+
+3) chewbacca-growl.com points to CloudFront
+  dig chewbacca-growl.com A +short
+  dig app.chewbacca-growl.com A +short
+
+Expected: resolves to CloudFront (you’ll see CloudFront anycast behavior, not ALB IPs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
