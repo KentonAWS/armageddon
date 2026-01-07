@@ -54,35 +54,35 @@ They must ensure their user-data/app listens on port 80 (or update TG/SG accordi
 Verification commands (CLI) for Bonus-B
 1) ALB exists and is active
    
-    aws elbv2 describe-load-balancers \
-    --names chewbacca-alb01 \
-    --query "LoadBalancers[0].State.Code"
+      aws elbv2 describe-load-balancers \
+        --names chewbacca-alb01 \
+        --query "LoadBalancers[0].State.Code"
 
 3) HTTPS listener exists on 443
    
-    aws elbv2 describe-listeners \
-    --load-balancer-arn <ALB_ARN> \
-    --query "Listeners[].Port"
+      aws elbv2 describe-listeners \
+        --load-balancer-arn <ALB_ARN> \
+        --query "Listeners[].Port"
 
 4) Target is healthy
    
-    aws elbv2 describe-target-health \
-    --target-group-arn <TG_ARN>
+      aws elbv2 describe-target-health \
+        --target-group-arn <TG_ARN>
 
 5) WAF attached
    
-    aws wafv2 get-web-acl-for-resource \
-    --resource-arn <ALB_ARN>
+      aws wafv2 get-web-acl-for-resource \
+        --resource-arn <ALB_ARN>
 
 7) Alarm created (ALB 5xx)
    
-    aws cloudwatch describe-alarms \
-    --alarm-name-prefix chewbacca-alb-5xx
+      aws cloudwatch describe-alarms \
+        --alarm-name-prefix chewbacca-alb-5xx
 
 9) Dashboard exists
     
-    aws cloudwatch list-dashboards \
-    --dashboard-name-prefix chewbacca
+      aws cloudwatch list-dashboards \
+        --dashboard-name-prefix chewbacca
 
 
 
